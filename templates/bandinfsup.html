@@ -1,0 +1,205 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Multiplication</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            margin-top: 10px;
+        }
+
+        .form-control {
+            width: 100%;
+        }
+
+        #matrixAInputs {
+            margin-top: 20px;
+        }
+
+        #generateButton,
+        #submitButton {
+            margin-top: 20px;
+        }
+
+        #mValue,
+        #result {
+            margin-top: 30px;
+        }
+
+        table {
+            margin-top: 20px;
+        }
+
+        table td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Matrix Multiplication</h1>
+
+        <form id="matrixForm" action="/bandinfsup" method="POST">
+            <div class="form-group">
+                <label for="matrixSize">Enter the dimension (n) of the matrices:</label>
+                <input type="number" class="form-control" id="matrixSize" name="matrixSize" required>
+            </div>
+
+            <button type="button" id="generateButton" class="btn btn-primary">Generate</button>
+
+            <div class="form-group">
+                <p>Enter the elements for Lower Band Matrix:</p>
+                <div id="matrixAInputs" class="mb-3"></div>
+            </div>
+
+            <div class="form-group">
+                <p>Enter the elements for Upper Band Matrix :</p>
+                <div id="matrixBInputs" class="mb-3"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Calculate</button>
+        </form>
+
+        <div id="result" class="mt-4">
+            <!-- Result or error message will be displayed here -->
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('generateButton').addEventListener('click', function () {
+                    const matrixSize = parseInt(document.getElementById('matrixSize').value);
+                    const matrixAInputs = document.getElementById('matrixAInputs');
+                    const matrixBInputs = document.getElementById('matrixBInputs');
+
+                    matrixAInputs.innerHTML = '';
+                    matrixBInputs.innerHTML = '';
+
+                    for (let i = 0; i < matrixSize; i++) {
+                        const rowDivA = document.createElement('div');
+                        rowDivA.className = 'form-row mb-2';
+
+                        const rowDivB = document.createElement('div');
+                        rowDivB.className = 'form-row mb-2';
+
+                        for (let j = 0; j < matrixSize; j++) {
+                            const colDivA = document.createElement('div');
+                            colDivA.className = 'col';
+
+                            const colDivB = document.createElement('div');
+                            colDivB.className = 'col';
+
+                            const inputA = document.createElement('input');
+                            inputA.type = 'number';
+                            inputA.className = 'form-control';
+                            inputA.name = `A[${i}][${j}]`;
+                            inputA.placeholder = `a[${i + 1}][${j + 1}]`;
+                            inputA.required = true;
+
+                            const inputB = document.createElement('input');
+                            inputB.type = 'number';
+                            inputB.className = 'form-control';
+                            inputB.name = `B[${i}][${j}]`;
+                            inputB.placeholder = `b[${i + 1}][${j + 1}]`;
+                            inputB.required = true;
+
+                            colDivA.appendChild(inputA);
+                            rowDivA.appendChild(colDivA);
+
+                            colDivB.appendChild(inputB);
+                            rowDivB.appendChild(colDivB);
+                        }
+
+                        matrixAInputs.appendChild(rowDivA);
+                        matrixBInputs.appendChild(rowDivB);
+                    }
+
+                    document.getElementById('result').innerHTML = ''; // Clear previous results
+                });
+
+                document.getElementById('matrixForm').addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(document.getElementById('matrixForm'));
+
+                    fetch('/bandinfsup', {
+                        method: 'POST',
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const resultContainer = document.getElementById('result');
+
+                        if (data.error) {
+                            resultContainer.innerHTML = `<p class="text-danger">Error: ${data.error}</p>`;
+                        } else {
+                            // Display m1 and m2 values
+                            const mValuesContainer = document.createElement('div');
+                            mValuesContainer.innerHTML = `<h3>m de la matrice demi bande inférieure : ${data.m1}</h3><h3>m de la matrice demi bande supérieure : ${data.m2}</h3>`;
+                            resultContainer.appendChild(mValuesContainer);
+
+                            // Display Result header
+                            const resultHeader = document.createElement('h1');
+                            resultHeader.innerText = 'Result';
+                            resultContainer.appendChild(resultHeader);
+
+                            // Create table for result
+                            const resultTable = document.createElement('table');
+                            resultTable.className = 'table table-bordered';
+
+                            // Fill the table with result data
+                            for (const row of data.result) {
+                                const tableRow = document.createElement('tr');
+                                for (const value of row) {
+                                    const tableCell = document.createElement('td');
+                                    tableCell.innerText = value.toFixed(2);
+                                    tableRow.appendChild(tableCell);
+                                }
+                                resultTable.appendChild(tableRow);
+                            }
+
+                            // Clear previous results and append the new table
+                            resultContainer.innerHTML = '';
+                            resultContainer.appendChild(mValuesContainer);
+                            resultContainer.appendChild(resultHeader);
+                            resultContainer.appendChild(resultTable);
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('result').innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+                    });
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

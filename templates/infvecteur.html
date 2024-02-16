@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triangular Inferior Matrix-Vector Multiplication</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            margin-top: 10px;
+        }
+
+        .form-control {
+            width: 100%;
+        }
+
+        #matrixAInputs {
+            margin-top: 20px;
+        }
+
+        #generateButton,
+        #submitButton {
+            margin-top: 20px;
+        }
+
+        #mValue,
+        #result {
+            margin-top: 30px;
+        }
+
+        table {
+            margin-top: 20px;
+        }
+
+        table td {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="mb-4">Triangular Matrix-Vector Multiplication Vector inf</h1>
+
+        <form id="matrixForm" method="POST" action="/infvecteurapp">
+            <div class="form-group">
+                <label for="matrixSize">Matrix Size:</label>
+                <input type="number" class="form-control" id="matrixSize" name="matrixSize" required>
+            </div>
+
+            <div id="matrixInputs" class="mb-3"></div>
+            <div id="vectorInputs" class="mb-3"></div>
+
+            <button type="button" class="btn btn-primary mt-3" onclick="generateInputs()">Generate Inputs</button>
+            <button type="submit" class="btn btn-success mt-3">Multiply</button>
+        </form>
+
+        <div id="result" class="mt-5">
+            {% if result is defined %}
+                <h3>Result:</h3>
+                <p>{{ result }}</p>
+            {% endif %}
+            {% if error is defined %}
+                <h3>Error:</h3>
+                <p>{{ error }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        function generateInputs() {
+            var matrixSize = document.getElementById('matrixSize').value;
+
+            generateMatrixInputs(matrixSize);
+            generateVectorInputs(matrixSize);
+        }
+
+        function generateMatrixInputs(size) {
+            var matrixInputs = document.getElementById('matrixInputs');
+            matrixInputs.innerHTML = '';
+
+            for (var i = 0; i < size; i++) {
+                var rowDiv = document.createElement('div');
+                rowDiv.className = 'form-row';
+
+                for (var j = 0; j < size; j++) {
+                    var input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'form-control col';
+                    input.name = `matrix[${i}][${j}]`;
+                    input.placeholder = `a[${i + 1}][${j + 1}]`;
+
+                    rowDiv.appendChild(input);
+                }
+
+                matrixInputs.appendChild(rowDiv);
+            }
+        }
+
+        function generateVectorInputs(size) {
+            var vectorInputs = document.getElementById('vectorInputs');
+            vectorInputs.innerHTML = '';
+
+            for (var i = 0; i < size; i++) {
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control mb-2';
+                input.name = `vector[${i}]`;
+                input.placeholder = `x${i + 1}`;
+                vectorInputs.appendChild(input);
+            }
+        }
+    </script>
+</body>
+
+</html>

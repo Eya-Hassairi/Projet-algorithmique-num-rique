@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LU Decomposition</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-check-input {
+            margin-top: 0.3rem;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        #matrix, #vectorInputs, #mValue, #xValue {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1>LU Decomposition</h1>
+        <form method="post" action="/decompose" id="matrixForm">
+            <div class="form-group">
+                <label for="matrixType">Matrix Type:</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="matrixType" id="dense" value="dense" checked>
+                    <label class="form-check-label" for="dense">Dense</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="matrixType" id="bande" value="bande">
+                    <label class="form-check-label" for="bande">Bande</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="dimension">Matrix Dimension (n):</label>
+                <input type="number" class="form-control" id="dimension" name="dimension" required>
+            </div>
+            <div class="form-group">
+                <label for="matrix">Enter Matrix Elements:</label>
+                <table class="table table-bordered">
+                    <tbody id="matrixBody"></tbody>
+                </table>
+            </div>
+            <div class="form-group">
+                <label for="vector">Enter Vector Elements:</label>
+                <table class="table table-bordered">
+                    <tbody id="vectorBody"></tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="applyDecomposition()">Decompose</button>
+        </form>
+        <div id="result" class="mt-4"></div>
+    </div>
+
+    <script>
+        document.getElementById("dimension").addEventListener("input", updateMatrixInput);
+
+        function updateMatrixInput() {
+            const dimension = parseInt(document.getElementById("dimension").value);
+            const matrixBody = document.getElementById("matrixBody");
+            matrixBody.innerHTML = "";
+
+            for (let i = 0; i < dimension; i++) {
+                const row = document.createElement("tr");
+
+                for (let j = 0; j < dimension; j++) {
+                    const cell = document.createElement("td");
+                    const input = document.createElement("input");
+                    input.type = "number";
+                    input.classList.add("form-control");
+                    input.name = `matrix[${i}][${j}]`;
+                    input.placeholder = `a[${i + 1}][${j + 1}]`;
+                    cell.appendChild(input);
+                    row.appendChild(cell);
+                }
+
+                matrixBody.appendChild(row);
+            }
+
+            const vectorBody = document.getElementById("vectorBody");
+            vectorBody.innerHTML = "";
+
+            const vectorRow = document.createElement("tr");
+
+            for (let i = 0; i < dimension; i++) {
+                const cell = document.createElement("td");
+                const input = document.createElement("input");
+                input.type = "number";
+                input.classList.add("form-control");
+                input.name = `vector[${i}]`;
+                input.placeholder = `x[${i + 1}]`;
+                cell.appendChild(input);
+                vectorRow.appendChild(cell);
+            }
+
+            vectorBody.appendChild(vectorRow);
+        }
+
+        function applyDecomposition() {
+            console.log("Applying decomposition...");
+    
+            const form = document.getElementById("matrixForm");
+            const formData = new FormData(form);
+
+            fetch('/decompose', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("result").innerHTML = data;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

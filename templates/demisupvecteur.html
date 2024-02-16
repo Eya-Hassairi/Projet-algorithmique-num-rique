@@ -1,0 +1,176 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Operation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            margin-top: 10px;
+        }
+
+        .form-control {
+            width: 100%;
+        }
+
+        #matrixAInputs {
+            margin-top: 20px;
+        }
+
+        #generateButton,
+        #submitButton {
+            margin-top: 20px;
+        }
+
+        #mValue,
+        #result {
+            margin-top: 30px;
+        }
+
+        table {
+            margin-top: 20px;
+        }
+
+        table td {
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Matrix Operation : demi superieure X vecteur</h1>
+
+        <form id="matrixForm" action="/demisupvecteurapp" method="POST">
+            <div class="form-group">
+                <label for="matrixSize">Enter the dimension (n) of the matrix and vector:</label>
+                <input type="number" class="form-control" id="matrixSize" name="Size" required>
+            </div>
+
+            <div class="form-group">
+                <p>Matrix:</p>
+                <div id="matrixInputs" class="mb-3"></div>
+            </div>
+
+            <div class="form-group">
+                <p>Vector:</p>
+                <div id="vectorInputs" class="mb-3"></div>
+            </div>
+
+            <button type="button" id="calculateButton" class="btn btn-primary">Calculate</button>
+        </form>
+
+        <div id="result" class="mt-4">
+            <!-- Result will be displayed here -->
+        </div>
+    </div>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Dynamically generate input fields for the matrix and vector based on user input
+            document.getElementById('matrixForm').addEventListener('submit', function (event) {
+                event.preventDefault();  // Prevent the default form submission behavior
+                const matrixSize = parseInt(document.getElementById('matrixSize').value);
+                const matrixInputs = document.getElementById('matrixInputs');
+                const vectorInputs = document.getElementById('vectorInputs');
+    
+                matrixInputs.innerHTML = '';
+                vectorInputs.innerHTML = '';
+    
+                for (let i = 0; i < matrixSize; i++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'form-row mb-2';
+    
+                    for (let j = 0; j < matrixSize; j++) {
+                        const colDiv = document.createElement('div');
+                        colDiv.className = 'col';
+    
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.className = 'form-control';
+                        input.name = `matrix[${i}][${j}]`;
+                        input.placeholder = `a[${i + 1}][${j + 1}]`;
+                        input.required = true;
+    
+                        colDiv.appendChild(input);
+                        rowDiv.appendChild(colDiv);
+                    }
+    
+                    matrixInputs.appendChild(rowDiv);
+                }
+    
+                for (let i = 0; i < matrixSize; i++) {
+                    const colDiv = document.createElement('div');
+                    colDiv.className = 'col';
+    
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.className = 'form-control';
+                    input.name = `vector[${i}]`;
+                    input.placeholder = `x[${i}]`;
+                    input.required = true;
+    
+                    colDiv.appendChild(input);
+                    vectorInputs.appendChild(colDiv);
+                }
+    
+                document.getElementById('result').innerHTML = ''; // Clear previous results
+            });
+    
+            document.getElementById('calculateButton').addEventListener('click', function () {
+                const formData = new FormData(document.getElementById('matrixForm'));
+    
+                fetch('/demisupvecteurapp', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const resultContainer = document.getElementById('result');
+    
+                    if (data.error) {
+                        resultContainer.innerHTML = `<p class="text-danger">Error: ${data.error}</p>`;
+                    } else {
+                        // Display the value of m and the result between square brackets and make it larger
+                        const mValue = data.m;
+                        const resultString = data.result.map(val => val.toFixed(2)).join(', ');
+                        resultContainer.innerHTML = `<h1 class="text">m: ${mValue}<br> Result: [${resultString}]</h1>`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('result').innerHTML = `<p class="text-danger">Error: ${JSON.stringify(error)}</p>`;
+                });
+            });
+        });
+    </script>
+    
+    
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaussian Elimination with Partial Pivoting</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-check-input {
+            margin-top: 0.3rem;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        #matrix, #vectorInputs, #mValue, #xValue {
+            display: none;
+        }
+    </style>
+    
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="mb-4">Gaussian Elimination with Partial Pivoting</h1>
+        <form id="matrixForm">
+            <div class="form-group row">
+                <div class="col-sm-2">Matrix Type:</div>
+                <div class="col-sm-10">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="matrixType" id="dense" value="dense" checked>
+                        <label class="form-check-label" for="dense">Dense</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="matrixType" id="bande" value="bande">
+                        <label class="form-check-label" for="bande">Bande</label>
+                    </div>
+                </div>
+            </div>        
+
+            <div class="form-group">
+                <h4 for="dimension" class="col-form-label">Matrix Dimension:</h4>
+                <input type="number" class="form-control" id="dimension" name="dimension" required>
+            </div>
+            
+            <h3 id="matrixInputHeading" class="mb-4 d-none">Matrix elements</h3>
+
+            <!-- Ajout de la div pour les champs de la matrice -->
+            <div id="matrix-inputs" class="form-group"></div>
+
+           
+            <div id="vector-input" class="form-group"></div>
+
+            <button type="button" class="btn btn-primary mx-auto d-block mt-3" onclick="generateMatrixInputs()">Generate Matrix Fields</button>
+            <button type="submit" class="btn btn-success mx-auto d-block mt-3">Process Matrix</button>
+        </form>
+
+        <div id="result" class="mt-5"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        
+        function generateMatrixInputs() {
+            var dimension = document.getElementById('dimension').value;
+            var matrixInputsDiv = document.getElementById('matrix-inputs');
+            matrixInputsDiv.innerHTML = '';
+            
+            // Generating input fields for the matrix
+            for (var i = 0; i < dimension; i++) {
+                var rowDiv = document.createElement('div');
+                rowDiv.className = 'form-row';
+                for (var j = 0; j < dimension; j++) {
+                    var inputGroup = document.createElement('div');
+                    inputGroup.className = 'col';
+                    var input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'form-control mb-2';
+                    input.name = `matrix[${i}][${j}]`;
+                    input.placeholder = `a[${i + 1}][${j + 1}]`;
+                    input.required = true;
+                    inputGroup.appendChild(input);
+                    rowDiv.appendChild(inputGroup);
+                }
+                matrixInputsDiv.appendChild(rowDiv);
+            }
+
+            // Show the Matrix Input heading after generating matrix fields
+            document.getElementById('matrixInputHeading').classList.remove('d-none');
+
+            // Generating input fields for the vector
+            var vectorInputDiv = document.getElementById('vector-input');
+            vectorInputDiv.innerHTML = '';
+            var vectorHeading = document.createElement('h4');
+            vectorHeading.innerText = 'Enter Vector Elements:';
+            vectorInputDiv.appendChild(vectorHeading);
+
+            for (var i = 0; i < dimension; i++) {
+                var vectorInputGroup = document.createElement('div');
+                vectorInputGroup.className = 'col';
+                var vectorInput = document.createElement('input');
+                vectorInput.type = 'text';
+                vectorInput.className = 'form-control mb-2';
+                vectorInput.name = `vector[${i}]`;
+                vectorInput.placeholder = `x[${i + 1}]`;
+                vectorInput.required = true;
+                vectorInputGroup.appendChild(vectorInput);
+                vectorInputDiv.appendChild(vectorInputGroup);
+            }
+        }
+
+        document.getElementById('matrixForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/eliminategosspp', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('result').innerHTML = data;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

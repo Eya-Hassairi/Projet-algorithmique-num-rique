@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cholesky Decomposition</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-check-input {
+            margin-top: 0.3rem;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="mb-4">Cholesky Decomposition</h1>
+        <form id="matrixForm">
+            <div class="form-group">
+                <h4 for="matrixSize" class="col-form-label">Matrix and Vector Size (n):</h4>
+                <input type="number" class="form-control" id="matrixSize" name="matrixSize" required>
+            </div>
+
+            <div class="form-group">
+                <h4 class="col-form-label">Matrix Type:</h4>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="matrixType" id="dense" value="dense" checked>
+                    <label class="form-check-label" for="dense">Dense</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="matrixType" id="bande" value="bande">
+                    <label class="form-check-label" for="bande">Bande</label>
+                </div>
+            </div>
+
+            <h3 class="mb-4">Matrix and Vector Input</h3>
+
+            <!-- Add the div for matrix and vector input fields -->
+            <div id="matrix-and-vector-inputs" class="form-group"></div>
+
+            <button type="button" class="btn btn-primary mx-auto d-block mt-3" onclick="generateMatrixAndVectorInputs()">Generate Matrix and Vector Fields</button>
+            <button type="submit" class="btn btn-success mx-auto d-block mt-3">Decompose Matrix</button>
+        </form>
+
+        <div id="result" class="mt-5"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        function generateMatrixAndVectorInputs() {
+            var size = document.getElementById('matrixSize').value;
+            var matrixAndVectorInputsDiv = document.getElementById('matrix-and-vector-inputs');
+
+            matrixAndVectorInputsDiv.innerHTML = '';
+
+            // Generate matrix input fields
+            var matrixDiv = document.createElement('div');
+            matrixDiv.className = 'form-group';
+
+            for (var i = 0; i < size; i++) {
+                var rowDiv = document.createElement('div');
+                rowDiv.className = 'form-row';
+
+                for (var j = 0; j < size; j++) {
+                    var inputGroup = document.createElement('div');
+                    inputGroup.className = 'col';
+
+                    var input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'form-control mb-2';
+                    input.name = `matrix[${i}][${j}]`;
+                    input.placeholder = `a[${i + 1}][${j + 1}]`;
+                    input.required = true;
+
+                    inputGroup.appendChild(input);
+                    rowDiv.appendChild(inputGroup);
+                }
+                matrixDiv.appendChild(rowDiv);
+            }
+
+            matrixAndVectorInputsDiv.appendChild(matrixDiv);
+
+            // Generate vector input fields
+            var vectorDiv = document.createElement('div');
+            vectorDiv.className = 'form-group';
+
+            for (var i = 0; i < size; i++) {
+                var inputGroup = document.createElement('div');
+                inputGroup.className = 'col';
+
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control mb-2';
+                input.name = `vector[${i}]`;
+                input.placeholder = `x[${i + 1}]`;
+                input.required = true;
+
+                inputGroup.appendChild(input);
+                vectorDiv.appendChild(inputGroup);
+            }
+
+            matrixAndVectorInputsDiv.appendChild(vectorDiv);
+        }
+
+        document.getElementById('matrixForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/decomposechol', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('result').innerHTML = data;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
